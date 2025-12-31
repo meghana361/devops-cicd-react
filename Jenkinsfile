@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "react-cicd"
+        IMAGE_TAG = "v1"
+    }
+
+    stages {
+        stage('Clone Repo') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/<your-username>/devops-cicd-react.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                cd frontend
+                docker build -t $IMAGE_NAME:$IMAGE_TAG .
+                '''
+            }
+        }
+
+        stage('Verify Image') {
+            steps {
+                sh 'docker images | grep react-cicd'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Docker image built successfully!"
+        }
+        failure {
+            echo "Build failed"
+        }
+    }
+}
